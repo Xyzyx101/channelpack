@@ -13,6 +13,10 @@ body {
     font-size: 120%;
 }
 
+.header-icon {
+    width: 2.5em;
+    padding: 0.25em;
+}
 .main-container {
     background: lightgrey;
     z-index: 1;

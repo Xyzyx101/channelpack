@@ -30,7 +30,7 @@ func ParseForm(w http.ResponseWriter, r *http.Request) {
 	// fmt.Println("file:", r.Form["myFile"])
 
 	r.ParseMultipartForm(1 << 10)
-	fhs := r.MultipartForm.File["imageFile"]
+	fhs := r.MultipartForm.File["image-file"]
 	for _, fh := range fhs {
 		f, err := fh.Open()
 		if err != nil {
