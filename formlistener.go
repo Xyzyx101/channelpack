@@ -8,12 +8,8 @@ import (
 	_ "image/png"
 	"log"
 	"net/http"
+	"strconv"
 )
-
-// ListenForm waits for the form to be submitted from the static stite and parses it
-// func ListenForm() {
-// 	http.HandleFunc("/process", Test)
-// }
 
 // ParseForm parses the form input and starts the conversion process
 func ParseForm(w http.ResponseWriter, r *http.Request) {
@@ -23,12 +19,7 @@ func ParseForm(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	r.ParseForm()
-
-	// r.ParseMultipartForm(32 << 20)
-	// fmt.Println("test:", r.Form["test"])
-	// fmt.Println("file:", r.Form["myFile"])
-
+	//r.ParseForm()
 	r.ParseMultipartForm(1 << 10)
 	fhs := r.MultipartForm.File["image-file"]
 	for _, fh := range fhs {
@@ -53,4 +44,51 @@ func ParseForm(w http.ResponseWriter, r *http.Request) {
 	// 	//f.Read
 	// }
 
+}
+
+// ParseUpload will parse and save uploaded images
+func ParseUpload(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	r.ParseForm()
+	r.ParseMultipartForm(1 << 10)
+	fhs := r.MultipartForm.File["image-file"]
+	for _, fh := range fhs {
+		f, err := fh.Open()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer f.Close()
+		m, format, err := image.Decode(f)
+		fmt.Println(format)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		MyPackWorker.AddImage(fh.Filename, &m)
+		fmt.Println(m.Bounds())
+		fmt.Println(m.ColorModel())
+	}
+	http.Redirect(w, r, "/", 303)
+}
+
+// ParseRemove is used to delete an uploaded image that is not longer needed
+func ParseRemove(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	r.ParseForm()
+	indexProp, ok := r.Form["file-index"]
+	if ok {
+		index, err := strconv.Atoi(indexProp[0])
+		if err != nil {
+			http.Error(w, "Form contains no file-index property", http.StatusInternalServerError)
+		}
+		MyPackWorker.RemoveImage(index)
+	}
+	http.Redirect(w, r, "/", 303)
 }

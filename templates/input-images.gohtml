@@ -1,0 +1,28 @@
+{{define "input-images"}}
+<div class="pure-u-1-6"></div>
+<table class="pure-u-2-3 pure-table pure-table-horizontal images-table">
+    <thead class="pure-u-1-1">
+        <tr class="pure-u-1-1">
+            <th class="pure-u-1-24">#</th>
+            <th class="pure-u-5-24">File</th>
+            <th class="pure-u-1-2">Image</th>
+            <th class="pure-u-1-24">&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody class="pure-u-1-1">
+    {{range $i, $e := .Names}}
+        <tr class="pure-u-1-1">
+        <td class="pure-u-1-24">{{$i}}</td>
+        <td class="pure-u-5-24"><span class="filename">{{$e}}</span></td>
+        <td class="pure-u-1-2"> <img class="pure-img thumb-img" src="/thumb/{{$e}}"/></td>
+        <td class="pure-u-1-24">
+            <form enctype="application/x-www-form-urlencoded" action="/remove" method="post">
+                <input name="file-index" type="hidden" value="{{$i}}" />
+                <input class="" type="submit" value="-" />
+            </form>
+        </td>
+        </tr>
+    {{end}}
+    </tbody>
+</table>
+{{end}}

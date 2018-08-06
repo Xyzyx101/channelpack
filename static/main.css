@@ -22,7 +22,7 @@ body {
     z-index: 1;
     overflow: hidden;
     width: 100%;
-    height: 88%;
+    height: 100%;
     top: 0;
     left: 0;
     position: fixed !important;
@@ -30,9 +30,10 @@ body {
 
 .main {
     width: 100%;
-    height: 80%;
+    height: 92%;
     margin: auto;
     position: absolute;
+    overflow: scroll;
     top: 50px;
     left: 0;
     bottom: 0;
@@ -62,9 +63,9 @@ body {
     padding: 1em;
 }
 
-.image-upload img
+.image-label img
 {
-    width: 400px;
+    width: 100px;
     cursor: pointer;
 }
 
@@ -73,8 +74,20 @@ body {
     color: #fff;
 }
 
-.list-change-button {
+.list-change-btn {
     font-size: 200%;
     font-weight: bold;
     padding: 0;
+}
+
+.images-table {
+    table-layout: fixed;
+}
+
+.filename {
+    text-transform: none;
+}
+
+.thumb-img {
+     width: 240px;
 }

@@ -6,21 +6,36 @@ Channel Packer
 <script src="/static/form.js"></script>
 <div class="main pure-g">
     <div class="pure-u-1-6"></div>
-    <form class="pure-form pure-form-stacked pure-u-2-3" enctype="multipart/form-data" action="/process" method="post">
+    <form class="pure-form pure-form-stacked pure-u-2-3" enctype="multipart/form-data" action="/upload" method="post">
+        <fieldset class="pure-u-1">
+            <legend class="section-header"><h3>Upload Images</h3></legend>
+            <div class="input-image pure-g">
+                <<!--div class="pure-u-1-5"></div>-->
+                <label for="file-upload" class="image-label pure-u-1-5">
+                    <img class="pure-img" src="/static/default.png"/>
+                </label>
+                <div class="pure-u-3-5">
+                    <input id="file-upload" class="image-file" type="file" name="image-file" accept=".png,.gif,.jpg,.jpeg,image/x-png,image/gif,image/jpeg" onchange="this.form.submit()"/>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+    {{template "input-images" .}}
+    <!-- <form class="pure-form pure-form-stacked pure-u-2-3" enctype="multipart/form-data" action="/process" method="post">
         <fieldset class="pure-u-1">
             <legend class="section-header"><h3>Input Images</h3></legend>
             <div class="input-image pure-g">
-                <label for="file-input" class="image-upload pure-u-2-5">
-                    <img id="input-display" class="pure-img" src="/static/default.png"/>
+                <label for="file-input_0" class="image-label pure-u-2-5">
+                    <img class="pure-img" src="/static/default.png"/>
                 </label>
                 <div class="pure-u-3-5">
-                    <input id="file-input" type="file" name="image-file" accept=".png,.gif,.jpg,.jpeg,image/x-png,image/gif,image/jpeg">
-                    <input id="delete-btn" class="pure-u-1-5 pure-button pure-button-primary list-change-button" type="button" value="-"/>
+                    <input id="file-input_0" class="image-file" type="file" name="image-file_0" accept=".png,.gif,.jpg,.jpeg,image/x-png,image/gif,image/jpeg">
+                    <input class="pure-u-1-5 pure-button pure-button-primary list-change-btn" type="button" value="-"/>
                 </div>
             </div>
         </fieldset>
         <div class="pure-u-1-5"></div> 
-        <input id="add-input-btn" class="pure-u-3-5 pure-button pure-button-primary list-change-button" type="button" value="+"/>
+        <input id="add-input-btn" class="pure-u-3-5 pure-button pure-button-primary list-change-btn" type="button" value="+"/>
         <fieldset class="pure-u-1">
             <legend class="section-header"><h3>Output Settings:</h3></legend>
             <label class="section">
@@ -28,7 +43,6 @@ Channel Packer
             </label>
             <input class="section" type="submit" value="Submit">
         </fieldset>
-    </form>
-     <div class="pure-u-1-6"></div>
+    </form> -->
 </div>
 {{end}}
