@@ -7,6 +7,7 @@ import (
 	"image/color"
 	"image/jpeg"
 	"io"
+	"log"
 	"net/http"
 
 	"github.com/nfnt/resize"
@@ -62,6 +63,42 @@ func (p PackWorker) ImageNames() []string {
 	return imageData
 }
 
+// ImageChannels returns a list of input channel options that are valid for that image
+func (p PackWorker) ImageChannels() []string {
+	var ic = make([]string, 0, len(p.Images))
+	for _, image := range p.Images {
+		var validChannels string
+		cm := image.ColorModel()
+		switch cm {
+		case color.RGBAModel:
+			fallthrough
+		case color.RGBA64Model:
+			fallthrough
+		case color.NRGBAModel:
+			fallthrough
+		case color.NRGBA64Model:
+			fallthrough
+		case color.NYCbCrAModel:
+			validChannels = "R|G|B|A|Grey"
+		case color.YCbCrModel:
+			validChannels = "R|G|B|Grey"
+		case color.AlphaModel:
+			fallthrough
+		case color.Alpha16Model:
+			validChannels = "A"
+		case color.GrayModel:
+			fallthrough
+		case color.Gray16Model:
+			validChannels = "Grey"
+		default:
+			log.Println("Unknown colour model")
+			validChannels = "XXX"
+		}
+		ic = append(ic, validChannels)
+	}
+	return ic
+}
+
 // RemoveImage an image from the worker
 func (p *PackWorker) RemoveImage(index int) error {
 	if index < 0 || index >= len(p.Images) {
@@ -95,6 +132,5 @@ func (p *PackWorker) ServeThumbnail(w http.ResponseWriter, filepath string) erro
 	r := bytes.NewReader(image.thumb)
 	w.Header().Set("Content-Type", "image/jpeg")
 	io.Copy(w, r)
-
 	return nil
 }

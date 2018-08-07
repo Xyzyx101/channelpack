@@ -62,15 +62,12 @@ func ParseUpload(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		defer f.Close()
-		m, format, err := image.Decode(f)
-		fmt.Println(format)
+		m, _, err := image.Decode(f)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		MyPackWorker.AddImage(fh.Filename, &m)
-		fmt.Println(m.Bounds())
-		fmt.Println(m.ColorModel())
 	}
 	http.Redirect(w, r, "/", 303)
 }

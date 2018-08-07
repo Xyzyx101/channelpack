@@ -60,9 +60,11 @@ func ServeStatic(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	imageNames := MyPackWorker.ImageNames()
+	imageChannels := MyPackWorker.ImageChannels()
 	imageData := struct {
-		Names []string
-	}{imageNames}
+		Names    []string
+		Channels []string
+	}{imageNames, imageChannels}
 	page.ExecuteTemplate(w, "layout", imageData)
 }
 

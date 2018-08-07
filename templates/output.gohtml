@@ -24,7 +24,7 @@
             <h5>Red Channel</h5>
             <div class="pure-u-1-2">
                 <label for="red-file">File:</label>
-                <select id="red-file" name="red-file" class="grid-field" >
+                <select id="red-file" name="red-file" class="grid-field file red">
                     <option value="">--Please choose an option--</option>
                     {{range $e := .Names}}
                         <option value="{{$e}}">{{$e}}</option>
@@ -33,7 +33,7 @@
             </div>
             <div class="pure-u-1-2">
                 <label for="red-channel">Channel:</label>
-                <select id="red-channel" name="red-channel" class="grid-field" >
+                <select id="red-channel" name="red-channel" class="grid-field channel red">
                     <option value="">--Please choose an option--</option>
                     {{range $e := .Names}}
                         <option value="{{$e}}">{{$e}}</option>
@@ -52,4 +52,9 @@
         </div>
     </fieldset>
 </form>
+<script type="text/javascript">
+    var UploadData = {"Names":{{js .Names}}, "Channels":{{js .Channels}}};
+</script>
+<script type="text/javascript" src="static/output.js"></script>
+<h1>debug {{.Channels}}</h1>
 {{end}}
