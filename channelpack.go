@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -33,6 +32,9 @@ func main() {
 	}
 	addr := config.IP + ":" + strconv.Itoa(config.Port)
 
+	log.Println("Parsing templates")
+	InitTemplates()
+
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 	http.HandleFunc("/thumb/", ServeThumbnail)
@@ -41,15 +43,11 @@ func main() {
 	http.HandleFunc("/remove", ParseRemove)
 	http.HandleFunc("/", ServeStatic)
 
+	log.Println("Starting pack worker")
 	MyPackWorker = NewPackWorker()
 
-	http.ListenAndServe(addr, nil)
 	log.Println("Listening at " + addr + "...")
-
-	//ServePage(addr)
-	//ListenForm()
-	fmt.Println("channelpack starting...")
-
+	http.ListenAndServe(addr, nil)
 }
 
 func configFile() string {

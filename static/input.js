@@ -1,19 +1,19 @@
 (function () {
     "use strict";
-    $(document).ready(function () {
-        //$("#add-input-btn").click(addNewFileInput);
-        //connectInputControls();
-        $("#file-upload").change(function () {
-            uploadImage();
-        })
-    });
+    // $(document).ready(function () {
+    //     //$("#add-input-btn").click(addNewFileInput);
+    //     //connectInputControls();
+    //     $("#file-upload").change(function () {
+    //         uploadImage();
+    //     })
+    // });
 
-    function uploadImage() {
-        let file = $("#file-upload");
-        if (file.val()) {
-            file.trigger("submit");
-        }
-    }
+    // function uploadImage() {
+    //     let file = $("#file-upload");
+    //     if (file.val()) {
+    //         file.trigger("submit");
+    //     }
+    // }
 
     // function addNewFileInput() {
     //     console.log("new");

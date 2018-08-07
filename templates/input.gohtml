@@ -1,0 +1,17 @@
+{{define "input"}}
+    <h2>Input</h2>
+    <form class="pure-form pure-form-stacked" enctype="multipart/form-data" action="/upload" method="post">
+        <fieldset class="">
+            <legend class="section-header">Upload Images</legend>
+            <div class="input-image pure-g">
+                <label for="file-upload" class="image-label pure-u-2-5">
+                    <img class="pure-img" src="/static/default.png"/>
+                </label>
+                <div class="pure-u-3-5">
+                    <input id="file-upload" class="image-file pure-button pure-button-primary" type="file" name="image-file" accept=".png,.gif,.jpg,.jpeg,image/x-png,image/gif,image/jpeg" onchange="this.form.submit()"/>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+    {{template "input-images" .}}
+{{end}}

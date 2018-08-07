@@ -1,0 +1,55 @@
+{{define "output"}}
+<h2>Output</h2>
+<form class="pure-form pure-form-stacked" enctype="multipart/form-data" action="/process" method="post">
+    <fieldset class="">
+        <div class="pure-g">
+            <legend class="section-header pure-u-1-1">File Configuration</legend>
+            <div class="pure-u-1-1">
+                <label for="output-name">Output Name:</label>
+                <input type="text" id="output-name" class="grid-field" name="output-name" required minlength="1" placeholder="Enter output filename" />
+                <span class="validity"></span>
+            </div>
+            <div class="pure-u-1-4">
+                <label for="width">Width:</label>
+                <input type="text" id="width" class="grid-field" name="width" required minlength="1" maxlength="4" placeholder="Width" pattern="\d+" value="1024" required/>
+                <span class="validity"></span>
+            </div>
+            <div class="pure-u-1-4">
+                <label for="height">Height:</label>
+                <input type="text" id="height" class="grid-field" name="height" required minlength="1" maxlength="4" placeholder="Height" pattern="\d+" value="1024"required/>
+                <span class="validity"></span>
+            </div>
+        <legend class="pure-u-1-1 section-header">Channel Configuration</legend>
+        <div class="pure-u-1">
+            <h5>Red Channel</h5>
+            <div class="pure-u-1-2">
+                <label for="red-file">File:</label>
+                <select id="red-file" name="red-file" class="grid-field" >
+                    <option value="">--Please choose an option--</option>
+                    {{range $e := .Names}}
+                        <option value="{{$e}}">{{$e}}</option>
+                    {{end}}
+                </select>
+            </div>
+            <div class="pure-u-1-2">
+                <label for="red-channel">Channel:</label>
+                <select id="red-channel" name="red-channel" class="grid-field" >
+                    <option value="">--Please choose an option--</option>
+                    {{range $e := .Names}}
+                        <option value="{{$e}}">{{$e}}</option>
+                    {{end}}
+                </select>
+            </div>
+        </div>
+        <div class="pure-u-1">
+            <h5>Green Channel</h5>
+        </div>
+        <div class="pure-u-1">
+            <h5>Blue Channel</h5>
+        </div>
+        <div class="pure-u-1">
+            <h5>Alpha Channel</h5>
+        </div>
+    </fieldset>
+</form>
+{{end}}

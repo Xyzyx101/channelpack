@@ -1,35 +1,69 @@
 package main
 
 import (
-	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 	"path/filepath"
+	"strings"
 )
+
+var templates = make(map[string]*template.Template)
+
+// InitTemplates parses and verifies all of the templates channel packer will use
+func InitTemplates() {
+	layout := template.Must(template.ParseFiles(filepath.Join("templates", "layout.gohtml")))
+
+	indexFiles := []string{
+		filepath.Join("templates", "layout.gohtml"),
+		filepath.Join("templates", "index.gohtml"),
+		filepath.Join("templates", "input.gohtml"),
+		filepath.Join("templates", "output.gohtml"),
+		filepath.Join("templates", "input-images.gohtml"),
+	}
+	index, err := layout.Clone()
+	if err != nil {
+		log.Fatal("cloning layout: ", err)
+	}
+	_, err = index.ParseFiles(indexFiles...)
+	if err != nil {
+		log.Fatal("parsing index: ", err)
+	}
+	templates["index"] = index
+
+	foo, err := layout.Clone()
+	if err != nil {
+		log.Fatal("cloning layout: ", err)
+	}
+	_, err = foo.ParseFiles(filepath.Join("templates", "foo.gohtml"))
+	if err != nil {
+		log.Fatal("parsing foo: ", err)
+	}
+	templates["foo"] = foo
+}
 
 // ServeStatic parses templates as serves the static resources and form
 func ServeStatic(w http.ResponseWriter, r *http.Request) {
-	layout := filepath.Join("templates", "layout.gohtml")
-	var page string
-	if r.URL.Path == "/" {
-		page = filepath.Join("templates", "index.gohtml")
-	} else if r.URL.Path == "/favicon.ico" {
+	var page *template.Template
+	switch path := strings.TrimPrefix(r.URL.Path, "/"); path {
+	case "favicon.ico":
 		w.WriteHeader(http.StatusNoContent)
-	} else {
-		page = filepath.Join("templates", filepath.Clean(r.URL.Path))
+		return
+	case "":
+		page = templates["index"]
+	default:
+		if t, ok := templates[path]; ok {
+			page = t
+		} else {
+			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+			return
+		}
 	}
-	inputImages := filepath.Join("templates", "input-images.gohtml")
 	imageNames := MyPackWorker.ImageNames()
 	imageData := struct {
 		Names []string
 	}{imageNames}
-
-	tmpl, err := template.ParseFiles(layout, page, inputImages)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	tmpl.ExecuteTemplate(w, "layout", imageData)
+	page.ExecuteTemplate(w, "layout", imageData)
 }
 
 // ServeThumbnail serves the images stored in PackWorker as web thumbnails

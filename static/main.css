@@ -43,12 +43,9 @@ body {
 
 .main form {
     border: 3px solid white;
-    background: #95aae2;
 }
 
 .pure-form legend {
-    display: block;
-    width: 100%;
     padding: .3em 0;
     margin-bottom: .3em;
     color: white;
@@ -59,6 +56,10 @@ body {
     padding-left: 1em;
 }
 
+.section-header {
+    padding: 1em !important;
+}
+
 .input-image {
     padding: 1em;
 }
@@ -67,6 +68,12 @@ body {
 {
     width: 100px;
     cursor: pointer;
+    margin-left: auto;
+    margin-right: auto 
+}
+
+.image-file {
+    width:100%;
 }
 
 .pure-button-primary, .pure-button-selected, a.pure-button-primary, a.pure-button-selected {
@@ -80,14 +87,14 @@ body {
     padding: 0;
 }
 
-.images-table {
-    table-layout: fixed;
-}
-
 .filename {
     text-transform: none;
 }
 
 .thumb-img {
      width: 240px;
+}
+
+.grid-field {
+    width:100%;
 }
