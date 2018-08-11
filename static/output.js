@@ -4,30 +4,46 @@
         $(".file").change(function (e) {
             populateChannels(e);
         })
+        $("#has-alpha").change(onHasAlphaChange);
     });
 
     function populateChannels(e) {
-        let file = $(e.target)
-        var channels = $(".channel");
-        var channel = null;
-        if (file.hasClass("red")) {
-            channel = channels.find(".red");
+        let fileSelect = $(e.target)
+        let channelNodes = $(".channel");
+        var channelSelect = null;
+        if (fileSelect.attr("id") == "red-file") {
+            channelSelect = $("#red-channel");
+        } else if (fileSelect.attr("id") == "green-file") {
+            channelSelect = $("#green-channel");
+        } else if (fileSelect.attr("id") == "blue-file") {
+            channelSelect = $("#blue-channel");
+        } else if (fileSelect.attr("id") == "alpha-file") {
+            channelSelect = $("#alpha-channel");
         }
-        let fileSelection = file.val()
-        let x = UploadData.Names;
+
         let selectedIdx = UploadData.Names.findIndex(function (elem) {
-            return elem == file.val();
+            return elem == fileSelect.val();
         })
         if (selectedIdx == -1) {
-            populateOptions(channel, "")
+            populateOptions(channelSelect, "")
         } else {
-            populateOptions(channel, UploadData.Channels[selectedIdx])
+            populateOptions(channelSelect, UploadData.Channels[selectedIdx])
         }
-        channel.val(0);
+        channelSelect.val(0);
     }
 
-    function populateOptions(optionNode, options) {
-        console.log(optionNode)
-        console.log(options)
+    function populateOptions(selectElem, options) {
+        selectElem.find("option").remove();
+        let newOptions = options.split('|');
+        $.each(newOptions, function (idx, val) {
+            selectElem.append($("<option></option>")
+                .attr("value", val).text(val));
+        });
+    }
+
+    function onHasAlphaChange(e) {
+        let hasAlpha = $(e.target);
+        console.log(hasAlpha);
+        //console.log(ha)
     }
 })();

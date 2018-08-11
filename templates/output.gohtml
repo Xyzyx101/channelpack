@@ -25,7 +25,6 @@
             <div class="pure-u-1-2">
                 <label for="red-file">File:</label>
                 <select id="red-file" name="red-file" class="grid-field file red">
-                    <option value="">--Please choose an option--</option>
                     {{range $e := .Names}}
                         <option value="{{$e}}">{{$e}}</option>
                     {{end}}
@@ -34,27 +33,78 @@
             <div class="pure-u-1-2">
                 <label for="red-channel">Channel:</label>
                 <select id="red-channel" name="red-channel" class="grid-field channel red">
-                    <option value="">--Please choose an option--</option>
-                    {{range $e := .Names}}
-                        <option value="{{$e}}">{{$e}}</option>
-                    {{end}}
                 </select>
             </div>
         </div>
         <div class="pure-u-1">
             <h5>Green Channel</h5>
+            <div class="pure-u-1-2">
+                <label for="green-file">File:</label>
+                <select id="green-file" name="green-file" class="grid-field file green">
+                    {{range $e := .Names}}
+                        <option value="{{$e}}">{{$e}}</option>
+                    {{end}}
+                </select>
+            </div>
+            <div class="pure-u-1-2">
+                <label for="green-channel">Channel:</label>
+                <select id="green-channel" name="green-channel" class="grid-field channel green">
+                </select>
+            </div>
         </div>
         <div class="pure-u-1">
             <h5>Blue Channel</h5>
+            <div class="pure-u-1-2">
+                <label for="blue-file">File:</label>
+                <select id="blue-file" name="blue-file" class="grid-field file blue">
+                    {{range $e := .Names}}
+                        <option value="{{$e}}">{{$e}}</option>
+                    {{end}}
+                </select>
+            </div>
+            <div class="pure-u-1-2">
+                <label for="blue-channel">Channel:</label>
+                <select id="blue-channel" name="blue-channel" class="grid-field channel blue">
+                </select>
+            </div>
         </div>
+         <label for="has-alpha">
+            <input id="has-alpha" type="checkbox" value="has-alpha">Has Alpha
+        </label>
         <div class="pure-u-1">
             <h5>Alpha Channel</h5>
+            <div class="pure-u-1-2">
+                <label for="alpha-file">File:</label>
+                <select id="alpha-file" name="alpha-file" class="grid-field file alpha">
+                    {{range $e := .Names}}
+                        <option value="{{$e}}">{{$e}}</option>
+                    {{end}}
+                </select>
+            </div>
+            <div class="pure-u-1-2">
+                <label for="alpha-channel">Channel:</label>
+                <select id="alpha-channel" name="alpha-channel" class="grid-field channel alpha">
+                </select>
+            </div>
         </div>
     </fieldset>
 </form>
+<form class="pure-form">
+    <fieldset>
+        <legend>A compact inline form</legend>
+
+        <input type="email" placeholder="Email">
+        <input type="password" placeholder="Password">
+
+        <label for="remember">
+            <input id="remember" type="checkbox"> Remember me
+        </label>
+
+        <button type="submit" class="pure-button pure-button-primary">Sign in</button>
+    </fieldset>
+</form>
 <script type="text/javascript">
-    var UploadData = {"Names":{{js .Names}}, "Channels":{{js .Channels}}};
+    let UploadData = {{.}};
 </script>
 <script type="text/javascript" src="static/output.js"></script>
-<h1>debug {{.Channels}}</h1>
 {{end}}
