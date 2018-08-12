@@ -10,8 +10,8 @@ import (
 
 var templates = make(map[string]*template.Template)
 
-// InitTemplates parses and verifies all of the templates channel packer will use
-func InitTemplates() {
+// initTemplates parses and verifies and caches of the templates channel packer will use
+func initTemplates() {
 	layout := template.Must(template.ParseFiles(filepath.Join("templates", "layout.gohtml")))
 
 	indexFiles := []string{
@@ -42,8 +42,8 @@ func InitTemplates() {
 	templates["foo"] = foo
 }
 
-// ServeStatic parses templates as serves the static resources and form
-func ServeStatic(w http.ResponseWriter, r *http.Request) {
+// serveStatic parses templates as serves the static css and js resources
+func serveStatic(w http.ResponseWriter, r *http.Request) {
 	var page *template.Template
 	switch path := strings.TrimPrefix(r.URL.Path, "/"); path {
 	case "favicon.ico":
@@ -59,8 +59,8 @@ func ServeStatic(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	imageNames := MyPackWorker.ImageNames()
-	imageChannels := MyPackWorker.ImageChannels()
+	imageNames := myPackWorker.imageNames()
+	imageChannels := myPackWorker.imageChannels()
 	imageData := struct {
 		Names    []string
 		Channels []string
@@ -68,10 +68,10 @@ func ServeStatic(w http.ResponseWriter, r *http.Request) {
 	page.ExecuteTemplate(w, "layout", imageData)
 }
 
-// ServeThumbnail serves the images stored in PackWorker as web thumbnails
-func ServeThumbnail(w http.ResponseWriter, r *http.Request) {
+// serveThumbnail serves the images stored in PackWorker as web thumbnails
+func serveThumbnail(w http.ResponseWriter, r *http.Request) {
 	_, file := filepath.Split(r.URL.Path)
-	if err := MyPackWorker.ServeThumbnail(w, file); err != nil {
+	if err := myPackWorker.serveThumbnail(w, file); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }

@@ -1,11 +1,11 @@
 {{define "output"}}
 <h2>Output</h2>
-<form class="pure-form" enctype="multipart/form-data" action="/process" method="post">
+<form class="pure-form" enctype="application/x-www-form-urlencodedapplication/x-www-form-urlencoded" action="/process" method="post">
     <fieldset>
         <h3 class="section-header pure-u-11-12">File Configuration</h3>
         <div class="pure-u-1-2">
             <label for="file-type">Filename:</label>
-            <input type="text" id="filename" class="grid-field" name="output-name" required minlength="1" placeholder="Output Name" value="NewImage.png" />
+            <input type="text" id="filename" class="grid-field" name="filename" required minlength="1" placeholder="Output Name" value="NewImage.png" />
             <span class="validity"></span>
         </div>
         <div class="pure-u-1-3">

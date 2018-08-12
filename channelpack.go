@@ -13,38 +13,38 @@ import (
 	"github.com/tkanos/gonfig"
 )
 
-// Config is the server config populated from config files and/or environment variables
-type Config struct {
+// config is the server config populated from config files and/or environment variables
+type config struct {
 	IP   string
 	Port int
 }
 
-var config Config
+var myConfig config
 
-// MyPackWorker is the main worker for the whole process.  This tool was designed to be used by me so there is only one...
-var MyPackWorker *PackWorker
+// myPackWorker is the main worker for the whole process.  This tool was designed to be used by me so there is only one...
+var myPackWorker *packWorker
 
 func main() {
-	err := gonfig.GetConf(configFile(), &config)
+	err := gonfig.GetConf(configFile(), &myConfig)
 	if err != nil {
 		log.Fatalln(err)
 		os.Exit(100)
 	}
-	addr := config.IP + ":" + strconv.Itoa(config.Port)
+	addr := myConfig.IP + ":" + strconv.Itoa(myConfig.Port)
 
 	log.Println("Parsing templates")
-	InitTemplates()
+	initTemplates()
 
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
-	http.HandleFunc("/thumb/", ServeThumbnail)
-	http.HandleFunc("/upload", ParseUpload)
-	http.HandleFunc("/process", ParseForm)
-	http.HandleFunc("/remove", ParseRemove)
-	http.HandleFunc("/", ServeStatic)
+	http.HandleFunc("/thumb/", serveThumbnail)
+	http.HandleFunc("/upload", parseUpload)
+	http.HandleFunc("/process", parseProcess)
+	http.HandleFunc("/remove", parseRemove)
+	http.HandleFunc("/", serveStatic)
 
 	log.Println("Starting pack worker")
-	MyPackWorker = NewPackWorker()
+	myPackWorker = newPackWorker()
 
 	log.Println("Listening at " + addr + "...")
 	http.ListenAndServe(addr, nil)

@@ -13,49 +13,25 @@ import (
 	"github.com/nfnt/resize"
 )
 
-// UploadImage represents the uploaded image from the user.
-// name is the filename.UploadImage
-// image is the actual image data
-// thumb is a shrunk down version to display over the internet
-type UploadImage struct {
-	name  string
-	image *image.Image
-	thumb []byte
+// packWorker holds the uploaded images and creates the final product for the user
+type packWorker struct {
+	Images []*uploadImage
 }
 
-// ColorModel is required for UploadImage to satisfy the Image interface
-func (u *UploadImage) ColorModel() color.Model { return (*u.image).ColorModel() }
-
-// Bounds is required for UploadImage to satisfy the Image interface
-func (u *UploadImage) Bounds() image.Rectangle { return (*u.image).Bounds() }
-
-// At is required for UploadImage to satisfy the Image interface
-func (u *UploadImage) At(x, y int) color.Color { return (*u.image).At(x, y) }
-
-// NewUploadImage creates a new UploadImage
-func NewUploadImage(name string, image *image.Image) *UploadImage {
-	return &UploadImage{name, image, nil}
+// newPackWorker creates and initializes a new pack worker
+func newPackWorker() *packWorker {
+	images := make([]*uploadImage, 0, 4)
+	return &packWorker{images}
 }
 
-// PackWorker holds the uploaded images and creates the final product for the user
-type PackWorker struct {
-	Images []*UploadImage
-}
-
-// NewPackWorker creates and initializes a new pack worker
-func NewPackWorker() *PackWorker {
-	images := make([]*UploadImage, 0, 4)
-	return &PackWorker{images}
-}
-
-// AddImage adds a newly uploaded image to the pack worker
-func (p *PackWorker) AddImage(name string, image *image.Image) {
-	u := NewUploadImage(name, image)
+// addImage adds a newly uploaded image to the pack worker
+func (p *packWorker) addImage(name string, image *image.Image) {
+	u := newUploadImage(name, image)
 	p.Images = append(p.Images, u)
 }
 
-// ImageNames returns a list of image names that can be used in the html template
-func (p PackWorker) ImageNames() []string {
+// imageNames returns a list of image names that can be used in the html template
+func (p packWorker) imageNames() []string {
 	var imageData = make([]string, 0, len(p.Images))
 	for _, image := range p.Images {
 		imageData = append(imageData, image.name)
@@ -63,8 +39,8 @@ func (p PackWorker) ImageNames() []string {
 	return imageData
 }
 
-// ImageChannels returns a list of input channel options that are valid for that image
-func (p PackWorker) ImageChannels() []string {
+// imageChannels returns a list of input channel options that are valid for that image
+func (p packWorker) imageChannels() []string {
 	var ic = make([]string, 0, len(p.Images))
 	for _, image := range p.Images {
 		var validChannels string
@@ -99,8 +75,8 @@ func (p PackWorker) ImageChannels() []string {
 	return ic
 }
 
-// RemoveImage an image from the worker
-func (p *PackWorker) RemoveImage(index int) error {
+// removeImage an image from the worker
+func (p *packWorker) removeImage(index int) error {
 	if index < 0 || index >= len(p.Images) {
 		return errors.New("Tried to remove image with bad index")
 	}
@@ -108,9 +84,9 @@ func (p *PackWorker) RemoveImage(index int) error {
 	return nil
 }
 
-// ServeThumbnail converts and sends thumbnail versions of the uploaded images
-func (p *PackWorker) ServeThumbnail(w http.ResponseWriter, filepath string) error {
-	var image *UploadImage
+// serveThumbnail converts and sends thumbnail versions of the uploaded images
+func (p *packWorker) serveThumbnail(w http.ResponseWriter, filepath string) error {
+	var image *uploadImage
 	for _, needle := range p.Images {
 		if needle.name == filepath {
 			image = needle
