@@ -1,6 +1,15 @@
 body {
     font-size: 16px;
     line-height: 1.7em;
+    }
+
+* {
+    font-family: 'Montserrat', Arial, Helvetica, sans-serif !important;
+    font-weight: 300;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 400;
 }
 
 .header {
@@ -56,12 +65,32 @@ body {
     padding-left: 1em;
 }
 
+.pure-g > div {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+th, td {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box; 
+}
+
+.l-box {
+    padding: 1em;
+}
+
+.l-box-horizontal {
+    padding: 0 1em;
+}
+
 .section-header {
-    padding: 1em 0 0 0 !important;
     -webkit-margin-before: 0.5em;
     -webkit-margin-after: 0.5em;
     -webkit-margin-start: 0px;
     -webkit-margin-end: 0px;
+     padding: 0 1em;
 }
 
 .channel-header {
@@ -69,10 +98,7 @@ body {
     -webkit-margin-after: 0.2em;
     -webkit-margin-start: 0px;
     -webkit-margin-end: 0px;
-}
-
-.input-image {
-    padding: 1em;
+     padding: 0 1em;
 }
 
 .image-label img
@@ -116,4 +142,20 @@ body {
 
 .process-button {
     margin: 0 auto 1em auto;
+}
+
+.center-align {
+    text-align: center
+}
+
+.center-container{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.bottom-center-align {
+    margin: 0 auto;
 }

@@ -64,12 +64,13 @@ func serveStatic(w http.ResponseWriter, r *http.Request) {
 
 	imageNames := myPackWorker.imageNames()
 	imageChannels := myPackWorker.imageChannels()
-	imageData := struct {
-		Names     []string
-		Channels  []string
-		PackTypes []packType
-	}{imageNames, imageChannels, allPackTypes}
-	page.ExecuteTemplate(w, "layout", imageData)
+	configData := struct {
+		ImageNames    []string
+		ImageChannels []string
+		AllPackTypes  []packType
+		AllChannels   []imageChannel
+	}{imageNames, imageChannels, allPackTypes, allChannels}
+	page.ExecuteTemplate(w, "layout", configData)
 }
 
 // serveThumbnail serves the images stored in PackWorker as web thumbnails

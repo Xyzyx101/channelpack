@@ -19,6 +19,8 @@ var (
 	greyChannel  = imageChannel{"grey", "Greyscale Channel"}
 )
 
+var allChannels = []imageChannel{redChannel, greenChannel, blueChannel, alphaChannel, greyChannel}
+
 type packType struct {
 	Name          string
 	ImageChannels []imageChannel

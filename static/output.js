@@ -28,13 +28,13 @@
             channelSelect = $("#alpha-channel");
         }
 
-        let selectedIdx = UploadData.Names.findIndex(function (elem) {
+        let selectedIdx = ConfigData.ImageNames.findIndex(function (elem) {
             return elem == fileSelect.val();
         })
         if (selectedIdx == -1) {
             populateOptions(channelSelect, "")
         } else {
-            populateOptions(channelSelect, UploadData.Channels[selectedIdx])
+            populateOptions(channelSelect, ConfigData.ImageChannels[selectedIdx])
         }
         channelSelect.val(0);
     }

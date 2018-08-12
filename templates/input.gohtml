@@ -1,17 +1,21 @@
 {{define "input"}}
-    <h2>Input</h2>
-    <form class="pure-form pure-form-stacked" enctype="multipart/form-data" action="/upload" method="post">
-        <fieldset class="">
-            <h3 class="section-header">Upload Images</h3>
-            <div class="input-image pure-g">
-                <label for="file-upload" class="image-label pure-u-2-5">
-                    <img class="pure-img" src="/static/default.png"/>
-                </label>
-                <div class="pure-u-3-5">
-                    <input id="file-upload" class="image-file pure-button pure-button-primary" type="file" name="image-file" accept=".png,.gif,.jpg,.jpeg,image/x-png,image/gif,image/jpeg" onchange="this.form.submit()"/>
+<div class="pure-g">
+    <h2 class="pure-u-1">Input</h2>
+    <form class="pure-form pure-u-1" enctype="multipart/form-data" action="/upload" method="post">
+        <fieldset>
+             <div class="pure-g">
+                <h3 class="section-header pure-u-1">Upload Images</h3>
+                <div class="pure-g">
+                    <label for="file-upload" class="image-label pure-u-2-5">
+                        <img class="pure-img" src="/static/default.png"/>
+                    </label>
+                    <div class="pure-u-3-5 l-box">
+                        <input id="file-upload" class="image-file pure-button pure-button-primary" type="file" name="image-file" accept=".png,.gif,.jpg,.jpeg,image/x-png,image/gif,image/jpeg" onchange="this.form.submit()"/>
+                    </div>
                 </div>
-            </div>
+             </div>
         </fieldset>
     </form>
-    {{template "input-images" .}}
+</div>
+{{template "input-images" .}}
 {{end}}
