@@ -7,71 +7,48 @@ import (
 	"strings"
 )
 
-type imageChannel int
+type imageChannel struct {
+	Name, PrettyName string
+}
 
-const (
-	channelError imageChannel = -1
-	r            imageChannel = iota
-	g
-	b
-	a
-	grey
+var (
+	redChannel   = imageChannel{"red", "Red Channel"}
+	greenChannel = imageChannel{"green", "Green Channel"}
+	blueChannel  = imageChannel{"blue", "Blue Channel"}
+	alphaChannel = imageChannel{"alpha", "Alpha Channel"}
+	greyChannel  = imageChannel{"grey", "Greyscale Channel"}
 )
 
-func (c imageChannel) String() string {
-	switch c {
-	case r:
-		return "r"
-	case g:
-		return "g"
-	case b:
-		return "b"
-	case a:
-		return "a"
-	case grey:
-		return "grey"
-	default:
-		return "error channel"
-	}
+type packType struct {
+	Name          string
+	ImageChannels []imageChannel
 }
 
-func parseImageChannel(s string) (imageChannel, error) {
-	s = strings.ToLower(s)
-	switch s {
-	case "r":
-		return r, nil
-	case "g":
-		return g, nil
-	case "b":
-		return b, nil
-	case "a":
-		return a, nil
-	default:
-		return channelError, errors.New("Unable to parse image channel : " + s)
-	}
-}
-
-type outputFileType int
-
-const (
-	outputFileTypeError outputFileType = -1
-	png                 outputFileType = iota
-	jpg
-	tga
+var (
+	maskPack = packType{"Mask", []imageChannel{redChannel, greenChannel, blueChannel, alphaChannel}}
+	rgbPack  = packType{"RGB", []imageChannel{redChannel, greenChannel, blueChannel}}
+	rgbaPack = packType{"RGBA", []imageChannel{redChannel, greenChannel, blueChannel, alphaChannel}}
+	greyPack = packType{"Greyscale", []imageChannel{greyChannel}}
 )
 
-func (f outputFileType) String() string {
-	switch f {
-	case png:
-		return "png"
-	case jpg:
-		return "jpg"
-	case tga:
-		return "tga"
-	default:
-		return "output file type error"
+func parsePackType(s string) (*packType, error) {
+	for _, p := range allPackTypes {
+		if s == p.Name {
+			return &p, nil
+		}
 	}
+	return nil, errors.New("Unable to parse packType : " + s)
 }
+
+var allPackTypes = []packType{maskPack, rgbPack, rgbaPack, greyPack}
+
+type outputFileType string
+
+const (
+	png outputFileType = "png"
+	jpg outputFileType = "jpg"
+	tga outputFileType = "tga"
+)
 
 func parseOutputFileType(s string) (outputFileType, error) {
 	s = strings.ToLower(s)
@@ -83,20 +60,20 @@ func parseOutputFileType(s string) (outputFileType, error) {
 	case "tga":
 		return tga, nil
 	default:
-		return outputFileTypeError, errors.New("Unable to parse output file type : " + s)
+		return "", errors.New("Unable to parse output file type : " + s)
 	}
 }
 
 type packInstructions struct {
-	filename                string
-	fileType                outputFileType
-	width, height           int
-	red, green, blue, alpha packChannel
+	outputName                    string
+	outputType                    outputFileType
+	width, height                 int
+	red, green, blue, alpha, grey inputChannel
 }
 
-type packChannel struct {
-	name    string
-	channel imageChannel
+type inputChannel struct {
+	filename string
+	channel  imageChannel
 }
 
 // uploadImage represents the uploaded image from the user.
