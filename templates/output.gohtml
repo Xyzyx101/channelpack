@@ -49,25 +49,29 @@
         </div>
 
         <div class="pure-g">
-            <h3 class="section-header pure-u-1">Channel Configuration</h3>  
-            <div id="red" class="pure-u-1">
-                <h5 class="channel-header">Red Channel</h5>
+            <h3 class="section-header pure-u-1">Channel Configuration</h3>
+            {{ $AllChannels := .AllChannels}}
+            {{ $ImageNames := .ImageNames}}
+            {{range $Channel := $AllChannels}}
+            <div id="{{$Channel.Name}}" class="pure-u-1">
+                <h5 class="channel-header">{{$Channel.PrettyName}}</h5>
                 <div class="pure-g">
                     <div class="pure-u-3-5 l-box-horizontal">
-                        <label for="red-file">File:</label>
-                        <select id="red-file" name="red-file" class="grid-field file red" required>
-                            {{range $e := .ImageNames}}
-                            <option value="{{$e}}">{{$e}}</option>
+                        <label for="{{$Channel.Name}}-file">File:</label>
+                        <select id="{{$Channel.Name}}-file" name="{{$Channel.Name}}-file" class="grid-field file {{$Channel.Name}}" required>
+                           {{range $Name := $ImageNames}}
+                                <option value="{{$Name}}">{{$Name}}</option>
                             {{end}}
                         </select>
                     </div>
                     <div class="pure-u-2-5 l-box-horizontal">
-                        <label for="red-channel">Channel:</label>
-                        <select id="red-channel" name="red-channel" class="grid-field channel red" required>
+                        <label for="{{$Channel.Name}}-channel">Channel:</label>
+                        <select id="{{$Channel.Name}}-channel" name="{{$Channel.Name}}-channel" class="grid-field channel {{$Channel.Name}}" required>
                         </select>
                     </div>
                 </div>
             </div>
+            {{end}}
         </div>
     </fieldset>
     <div class="pure-u-1-4"></div>

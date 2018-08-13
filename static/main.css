@@ -98,7 +98,7 @@ th, td {
     -webkit-margin-after: 0.2em;
     -webkit-margin-start: 0px;
     -webkit-margin-end: 0px;
-     padding: 0 1em;
+     padding: 1em 1em 0 1em;
 }
 
 .image-label img
