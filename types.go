@@ -21,6 +21,15 @@ var (
 
 var allChannels = []imageChannel{redChannel, greenChannel, blueChannel, alphaChannel, greyChannel}
 
+func parseChannel(s string) (*imageChannel, error) {
+	for _, c := range allChannels {
+		if s == c.Name {
+			return &c, nil
+		}
+	}
+	return nil, errors.New("Unable to parse channel : " + s)
+}
+
 type packType struct {
 	Name          string
 	ImageChannels []imageChannel
@@ -32,6 +41,24 @@ var (
 	rgbaPack = packType{"RGBA", []imageChannel{redChannel, greenChannel, blueChannel, alphaChannel}}
 	greyPack = packType{"Greyscale", []imageChannel{greyChannel}}
 )
+
+func (p packType) Equals(other packType) bool {
+	if p.Name != other.Name {
+		return false
+	}
+	if len(p.ImageChannels) != len(other.ImageChannels) {
+		return false
+	}
+	for idx, imageChannel := range p.ImageChannels {
+		if imageChannel.Name != other.ImageChannels[idx].Name {
+			return false
+		}
+		if imageChannel.PrettyName != other.ImageChannels[idx].PrettyName {
+			return false
+		}
+	}
+	return true
+}
 
 func parsePackType(s string) (*packType, error) {
 	for _, p := range allPackTypes {
@@ -70,12 +97,12 @@ type packInstructions struct {
 	outputName                    string
 	outputType                    outputFileType
 	width, height                 int
-	red, green, blue, alpha, grey inputChannel
+	red, green, blue, alpha, grey *inputChannel
 }
 
 type inputChannel struct {
-	filename string
-	channel  imageChannel
+	image   *image.Image
+	channel imageChannel
 }
 
 // uploadImage represents the uploaded image from the user.

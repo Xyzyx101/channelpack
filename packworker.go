@@ -7,8 +7,8 @@ import (
 	"image/color"
 	"image/jpeg"
 	"io"
-	"log"
 	"net/http"
+	"strings"
 
 	"github.com/nfnt/resize"
 )
@@ -30,6 +30,15 @@ func (p *packWorker) addImage(name string, image *image.Image) {
 	p.Images = append(p.Images, u)
 }
 
+func (p packWorker) image(name string) (*image.Image, error) {
+	for _, image := range p.Images {
+		if name == image.name {
+			return image.image, nil
+		}
+	}
+	return nil, errors.New("Packworker has no image : " + name)
+}
+
 // imageNames returns a list of image names that can be used in the html template
 func (p packWorker) imageNames() []string {
 	var imageData = make([]string, 0, len(p.Images))
@@ -43,7 +52,7 @@ func (p packWorker) imageNames() []string {
 func (p packWorker) imageChannels() []string {
 	var ic = make([]string, 0, len(p.Images))
 	for _, image := range p.Images {
-		var validChannels string
+		var channelNames []string
 		cm := image.ColorModel()
 		switch cm {
 		case color.RGBAModel:
@@ -55,21 +64,22 @@ func (p packWorker) imageChannels() []string {
 		case color.NRGBA64Model:
 			fallthrough
 		case color.NYCbCrAModel:
-			validChannels = "R|G|B|A|Grey"
+			channelNames = []string{redChannel.Name, greenChannel.Name, blueChannel.Name, alphaChannel.Name, greyChannel.Name}
 		case color.YCbCrModel:
-			validChannels = "R|G|B|Grey"
+			channelNames = []string{redChannel.Name, greenChannel.Name, blueChannel.Name, greyChannel.Name}
 		case color.AlphaModel:
 			fallthrough
 		case color.Alpha16Model:
-			validChannels = "A"
+			channelNames = []string{alphaChannel.Name}
 		case color.GrayModel:
 			fallthrough
 		case color.Gray16Model:
-			validChannels = "Grey"
+			channelNames = []string{greyChannel.Name}
 		default:
-			log.Println("Unknown colour model")
-			validChannels = "XXX"
+			//Unknown colour model
+			channelNames = []string{"XXX"}
 		}
+		validChannels := strings.Join(channelNames, "|")
 		ic = append(ic, validChannels)
 	}
 	return ic
@@ -108,5 +118,21 @@ func (p *packWorker) serveThumbnail(w http.ResponseWriter, filepath string) erro
 	r := bytes.NewReader(image.thumb)
 	w.Header().Set("Content-Type", "image/jpeg")
 	io.Copy(w, r)
+	return nil
+}
+
+func (p *packWorker) createImage(i packInstructions, done chan interface{}) error {
+	// tempImages := make(map[*image.Image]image.Image, 4)
+	// if i.red != nil {
+	// 	if _, contains := tempImages[i.red.image]; !contains {
+	// 		size := i.red.image.Width
+	// 		//tempImages[i.red.image] = resize()
+	// 	}
+	// }
+
+	return nil
+}
+
+func resizeImage(i *image.Image) *image.Image {
 	return nil
 }

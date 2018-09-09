@@ -19,7 +19,11 @@ func parseProcess(w http.ResponseWriter, r *http.Request) {
 	}
 	r.ParseForm()
 	buildInstructions, err := buildPackInstructions(r.Form)
-	log.Println(buildInstructions, err)
+	if err != nil {
+		log.Println(err)
+	} else {
+		log.Println(buildInstructions)
+	}
 	http.Redirect(w, r, "/", 303)
 }
 
@@ -101,22 +105,60 @@ func buildPackInstructions(f url.Values) (*packInstructions, error) {
 	} else {
 		return nil, err
 	}
+	var packType *packType
+	packTypeParam, err := formValue(f, "pack-type")
+	if err == nil {
+		packType, err = parsePackType(packTypeParam)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		return nil, err
+	}
 
-	log.Println(filename)
-	log.Println(fileType)
-	log.Println(width)
-	log.Println(height)
-	// hasAlpha := r.Form["has-alpha"]
-	// redFile := r.Form["red-file"]
-	// redChannel := r.Form["red-channel"]
-	// greenFile := r.Form["green-file"]
-	// greenChannel := r.Form["green-channel"]
-	// blueFile := r.Form["blue-file"]
-	// blueChannel := r.Form["blue-channel"]
-	// alphaFile := r.Form["alpha-file"]
-	// alphaChannel := r.Form["alpha-channel"]
+	var redInputChannel, greenInputChannel, blueInputChannel, alphaInputChannel, greyInputChannel *inputChannel
+	switch {
+	case packType.Equals(maskPack):
+		fallthrough
+	case packType.Equals(rgbaPack):
+		alphaInputChannel, err = channelParams(f, "alpha-file", "alpha-channel")
+		if err != nil {
+			return nil, err
+		}
+		fallthrough
+	case packType.Equals(rgbPack):
+		redInputChannel, err = channelParams(f, "red-file", "red-channel")
+		if err != nil {
+			return nil, err
+		}
+		greenInputChannel, err = channelParams(f, "green-file", "green-channel")
+		if err != nil {
+			return nil, err
+		}
+		blueInputChannel, err = channelParams(f, "blue-file", "blue-channel")
+		if err != nil {
+			return nil, err
+		}
+	case packType.Equals(greyPack):
+		greyInputChannel, err = channelParams(f, "grey-file", "grey-channel")
+		if err != nil {
+			return nil, err
+		}
+	default:
+		return nil, errors.New("Unhandled pack type")
+	}
 
-	return &packInstructions{}, nil
+	return &packInstructions{
+		filename,
+		fileType,
+		width,
+		height,
+		redInputChannel,
+		greenInputChannel,
+		blueInputChannel,
+		alphaInputChannel,
+		greyInputChannel,
+	}, nil
 }
 
 func formValue(f url.Values, param string) (string, error) {
@@ -132,4 +174,24 @@ func formValue(f url.Values, param string) (string, error) {
 		return "", errors.New(param + " was expected but found empty string")
 	}
 	return value, nil
+}
+
+func channelParams(form url.Values, filename string, channelName string) (*inputChannel, error) {
+	fileParam, err := formValue(form, filename)
+	if err != nil {
+		return nil, err
+	}
+	image, err := myPackWorker.image(fileParam)
+	if err != nil {
+		return nil, err
+	}
+	channelParam, err := formValue(form, channelName)
+	if err != nil {
+		return nil, err
+	}
+	channel, err := parseChannel(channelParam)
+	if err != nil {
+		return nil, err
+	}
+	return &inputChannel{image, *channel}, nil
 }
