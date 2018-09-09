@@ -30,16 +30,6 @@ func initTemplates() {
 		log.Fatal("parsing index: ", err)
 	}
 	templates["index"] = index
-
-	foo, err := layout.Clone()
-	if err != nil {
-		log.Fatal("cloning layout: ", err)
-	}
-	_, err = foo.ParseFiles(filepath.Join("templates", "foo.gohtml"))
-	if err != nil {
-		log.Fatal("parsing foo: ", err)
-	}
-	templates["foo"] = foo
 }
 
 // serveStatic parses templates as serves the static css and js resources
