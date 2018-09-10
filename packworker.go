@@ -8,7 +8,6 @@ import (
 	"image/jpeg"
 	"io"
 	"net/http"
-	"strings"
 
 	"github.com/nfnt/resize"
 )
@@ -25,12 +24,12 @@ func newPackWorker() *packWorker {
 }
 
 // addImage adds a newly uploaded image to the pack worker
-func (p *packWorker) addImage(name string, image *image.Image) {
+func (p *packWorker) addImage(name string, image image.Image) {
 	u := newUploadImage(name, image)
 	p.Images = append(p.Images, u)
 }
 
-func (p packWorker) image(name string) (*image.Image, error) {
+func (p packWorker) image(name string) (image.Image, error) {
 	for _, image := range p.Images {
 		if name == image.name {
 			return image.image, nil
@@ -52,7 +51,7 @@ func (p packWorker) imageNames() []string {
 func (p packWorker) imageChannels() []string {
 	var ic = make([]string, 0, len(p.Images))
 	for _, image := range p.Images {
-		var channelNames []string
+		var channels channelConst
 		cm := image.ColorModel()
 		switch cm {
 		case color.RGBAModel:
@@ -64,23 +63,21 @@ func (p packWorker) imageChannels() []string {
 		case color.NRGBA64Model:
 			fallthrough
 		case color.NYCbCrAModel:
-			channelNames = []string{redChannel.Name, greenChannel.Name, blueChannel.Name, alphaChannel.Name, greyChannel.Name}
+			channels = red | green | blue | alpha | grey
 		case color.YCbCrModel:
-			channelNames = []string{redChannel.Name, greenChannel.Name, blueChannel.Name, greyChannel.Name}
+			channels = red | green | blue | grey
 		case color.AlphaModel:
 			fallthrough
 		case color.Alpha16Model:
-			channelNames = []string{alphaChannel.Name}
+			channels = alpha
 		case color.GrayModel:
 			fallthrough
 		case color.Gray16Model:
-			channelNames = []string{greyChannel.Name}
+			channels = grey
 		default:
-			//Unknown colour model
-			channelNames = []string{"XXX"}
+			channels = none
 		}
-		validChannels := strings.Join(channelNames, "|")
-		ic = append(ic, validChannels)
+		ic = append(ic, channels.String())
 	}
 	return ic
 }

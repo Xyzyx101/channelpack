@@ -46,7 +46,8 @@
         var activeImageChannels;
         for (var idx = 0; idx < allPackTypes.length; ++idx) {
             if (allPackTypes[idx].Name == packType) {
-                activeImageChannels = allPackTypes[idx].ImageChannels
+                let imageChannels = allPackTypes[idx].ImageChannels
+                activeImageChannels = imageChannels.split('|');
                 break;
             }
         }
@@ -56,7 +57,7 @@
             let fileNode = $("#" + channel.Name + "-file")
             let channelNode = $("#" + channel.Name + "-channel");
             var found = activeImageChannels.find(function (activeChannel) {
-                return activeChannel.Name == channel.Name;
+                return activeChannel == channel.Name;
             })
             channelSectionNode.attr("hidden", !found);
             fileNode.prop('required', !!found);

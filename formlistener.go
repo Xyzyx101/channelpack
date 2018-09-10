@@ -47,7 +47,7 @@ func parseUpload(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		myPackWorker.addImage(fh.Filename, &m)
+		myPackWorker.addImage(fh.Filename, m)
 	}
 	http.Redirect(w, r, "/", 303)
 }
@@ -189,9 +189,6 @@ func channelParams(form url.Values, filename string, channelName string) (*input
 	if err != nil {
 		return nil, err
 	}
-	channel, err := parseChannel(channelParam)
-	if err != nil {
-		return nil, err
-	}
-	return &inputChannel{image, *channel}, nil
+	channel := parseChannel(channelParam)
+	return &inputChannel{image, channel}, nil
 }

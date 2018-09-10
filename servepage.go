@@ -54,9 +54,9 @@ func serveStatic(w http.ResponseWriter, r *http.Request) {
 	configData := struct {
 		ImageNames    []string
 		ImageChannels []string
-		AllPackTypes  []packType
-		AllChannels   []imageChannel
-	}{imageNames, imageChannels, allPackTypes, allChannels}
+		AllPackTypes  []struct{ Name, ImageChannels string }
+		AllChannels   []struct{ Name, PrettyName string }
+	}{imageNames, imageChannels, allPackTypesForJS, allChannelsForJS}
 	page.ExecuteTemplate(w, "layout", configData)
 }
 
