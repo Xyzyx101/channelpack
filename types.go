@@ -152,23 +152,26 @@ var allPackTypesForJS = []struct{ Name, ImageChannels string }{
 	{greyPack.Name, greyPack.Channel.String()},
 }
 
-type outputFileType string
+type outputContentType string
 
 const (
-	png outputFileType = "png"
-	jpg outputFileType = "jpg"
-	tga outputFileType = "tga"
+	pngContent outputContentType = "image/png"
+	jpgContent outputContentType = "image/jpeg"
+	tgaContent outputContentType = "image/x-tga"
 )
 
-func parseOutputFileType(s string) (outputFileType, error) {
+func (o outputContentType) String() string {
+	return string(o)
+}
+func parseOutputContentType(s string) (outputContentType, error) {
 	s = strings.ToLower(s)
 	switch s {
 	case "png":
-		return png, nil
+		return pngContent, nil
 	case "jpg":
-		return jpg, nil
+		return jpgContent, nil
 	case "tga":
-		return tga, nil
+		return tgaContent, nil
 	default:
 		return "", errors.New("Unable to parse output file type : " + s)
 	}
@@ -176,7 +179,7 @@ func parseOutputFileType(s string) (outputFileType, error) {
 
 type packInstructions struct {
 	outputName                    string
-	outputType                    outputFileType
+	outputType                    outputContentType
 	width, height                 int
 	red, green, blue, alpha, grey *inputChannel
 }
@@ -208,4 +211,13 @@ func (u *uploadImage) At(x, y int) color.Color { return u.image.At(x, y) }
 // newUploadImage creates a new UploadImage
 func newUploadImage(name string, image image.Image) *uploadImage {
 	return &uploadImage{name, image, nil}
+}
+
+type downloadImage struct {
+	data        []byte
+	contentType outputContentType
+}
+
+func newDownloadImage(data []byte, contentType outputContentType) *downloadImage {
+	return &downloadImage{data, contentType}
 }

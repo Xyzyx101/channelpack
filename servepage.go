@@ -67,3 +67,17 @@ func serveThumbnail(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
+
+// serveOutput serves the progress timer and completed filename
+func serveOutput(w http.ResponseWriter, r *http.Request) {
+	if err := myPackWorker.serveOutput(w); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// serveDownload serves completed images
+func serveDownload(w http.ResponseWriter, r *http.Request) {
+	if err := myPackWorker.serveDownload(w); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}

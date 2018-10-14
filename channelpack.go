@@ -41,6 +41,8 @@ func main() {
 	http.HandleFunc("/upload", parseUpload)
 	http.HandleFunc("/process", parseProcess)
 	http.HandleFunc("/remove", parseRemove)
+	http.HandleFunc("/output", serveOutput)
+	http.HandleFunc("/download", serveDownload)
 	http.HandleFunc("/", serveStatic)
 
 	log.Println("Starting pack worker")

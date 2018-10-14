@@ -24,6 +24,7 @@ func parseProcess(w http.ResponseWriter, r *http.Request) {
 	} else {
 		log.Println(buildInstructions)
 	}
+	myPackWorker.createImage(*buildInstructions)
 	http.Redirect(w, r, "/", 303)
 }
 
@@ -75,10 +76,10 @@ func buildPackInstructions(f url.Values) (*packInstructions, error) {
 	if err != nil {
 		return nil, err
 	}
-	var fileType outputFileType
+	var fileType outputContentType
 	fileTypeParam, err := formValue(f, "file-type")
 	if err == nil {
-		fileType, err = parseOutputFileType(fileTypeParam)
+		fileType, err = parseOutputContentType(fileTypeParam)
 		if err != nil {
 			return nil, err
 		}

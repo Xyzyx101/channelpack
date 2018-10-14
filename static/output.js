@@ -13,6 +13,7 @@
             populateChannels($(fileSelect));
         });
         displayChannelSections();
+        outputFileProgress();
     });
 
     function populateChannels(fileSelect) {
@@ -93,5 +94,45 @@
                 alphaChannel.prop('required', true);
                 break;
         }
+    }
+
+    function outputFileProgress() {
+        let processBtnSection = $("#process-btn-section")
+        let progressBarSection = $("#progress-bar-section");
+        let progressBar = progressBarSection.find("progress");
+        const url = "/output";
+        $.ajax({
+            url: url,
+            cache: false,
+            type: 'GET',
+            success: function (data, textStatus, jqXHR) {
+                if (jqXHR.status == 204 /*no content*/) {
+                    processBtnSection.show();
+                    progressBarSection.hide();
+                } else if (jqXHR.status == 200 /* ok */) {
+                    processBtnSection.hide();
+                    progressBarSection.show();
+                    var tokens = data.split(':');
+                    progressBar.attr("value", tokens[1]);
+                    progressBar.attr("max", tokens[2]);
+                    outputFileProgress();
+                } else if (jqXHR.status == 201 /* resource created */) {
+                    console.log("Resource created!!!");
+                    processBtnSection.show();
+                    progressBarSection.hide();
+                    var tokens = data.split(':');
+                    var a = $("<a>")
+                        .attr("href", tokens[1])
+                        .attr("download", tokens[2])
+                        .appendTo("body");
+
+                    a[0].click();
+                    a.remove();
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log("error:" + textStatus + " " + errorThrown);
+            }
+        })
     }
 })();
