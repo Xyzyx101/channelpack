@@ -155,9 +155,9 @@ var allPackTypesForJS = []struct{ Name, ImageChannels string }{
 type outputContentType string
 
 const (
-	pngContent outputContentType = "image/png"
-	jpgContent outputContentType = "image/jpeg"
-	tgaContent outputContentType = "image/x-tga"
+	pngContent  outputContentType = "image/png"
+	jpgContent  outputContentType = "image/jpeg"
+	tiffContent outputContentType = "image/tiff"
 )
 
 func (o outputContentType) String() string {
@@ -170,8 +170,8 @@ func parseOutputContentType(s string) (outputContentType, error) {
 		return pngContent, nil
 	case "jpg":
 		return jpgContent, nil
-	case "tga":
-		return tgaContent, nil
+	case "tif":
+		return tiffContent, nil
 	default:
 		return "", errors.New("Unable to parse output file type : " + s)
 	}
@@ -180,6 +180,7 @@ func parseOutputContentType(s string) (outputContentType, error) {
 type packInstructions struct {
 	outputName                    string
 	outputType                    outputContentType
+	packType                      *packType
 	width, height                 int
 	red, green, blue, alpha, grey *inputChannel
 }

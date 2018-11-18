@@ -7,8 +7,11 @@ import (
 	"image"
 	"image/color"
 	"image/jpeg"
+	"image/png"
 	"io"
 	"net/http"
+
+	"golang.org/x/image/tiff"
 
 	"github.com/nfnt/resize"
 )
@@ -128,69 +131,192 @@ func (p *packWorker) serveThumbnail(w http.ResponseWriter, filepath string) erro
 
 // serveOutput serves the processed image
 func (p *packWorker) serveOutput(w http.ResponseWriter) error {
-	output := <-p.Output
-	switch output.(type) {
-	case float32:
-		newProgress, _ := output.(float32)
-		p.OutputProgress += newProgress
-		w.WriteHeader(http.StatusOK)
-		w.Header().Set("Content-Type", "text/plain")
-		fmt.Fprintf(w, "progress:%f:%f", p.OutputProgress, progressChunks)
-		break
-	case string:
-		w.WriteHeader(http.StatusCreated)
-		fmt.Fprintf(w, "%s", output)
-		break
-	default:
-		w.WriteHeader(http.StatusNoContent)
-		p.OutputProgress = 0.0
-	}
-	return nil
-}
-
-func (p *packWorker) createImage(i packInstructions) error {
-	p.Output = make(chan interface{}, progressChunks+1)
-	for i := 0; i < progressChunks; i++ {
-		p.Output <- float32(1.0) //float32(i)
-	}
-
-	width := 200
-	height := 100
-
-	upLeft := image.Point{0, 0}
-	lowRight := image.Point{width, height}
-
-	img := image.NewRGBA(image.Rectangle{upLeft, lowRight})
-	// Colors are defined by Red, Green, Blue, Alpha uint8 values.
-	cyan := color.RGBA{100, 200, 200, 0xff}
-
-	// Set color for each pixel.
-	for x := 0; x < width; x++ {
-		for y := 0; y < height; y++ {
-			switch {
-			case x < width/2 && y < height/2: // upper left quadrant
-				img.Set(x, y, cyan)
-			case x >= width/2 && y >= height/2: // lower right quadrant
-				img.Set(x, y, color.White)
-			default:
-				// Use zero value.
-			}
+	for output := range p.Output {
+		switch output.(type) {
+		case float64:
+			p.OutputProgress += float32(output.(float64))
+			w.WriteHeader(http.StatusOK)
+			w.Header().Set("Content-Type", "text/plain")
+			fmt.Fprintf(w, "progress:%f:%f", p.OutputProgress, progressChunks)
+			return nil
+		case string:
+			w.WriteHeader(http.StatusCreated)
+			fmt.Fprintf(w, "%s", output)
+			return nil
 		}
 	}
-	buf := new(bytes.Buffer)
-	err := jpeg.Encode(buf, img, nil)
+	w.WriteHeader(http.StatusNoContent)
+	p.OutputProgress = 0.0
+	return nil
+	// output := <-p.Output
+	// switch output.(type) {
+	// case float64:
+	// 	p.OutputProgress += float32(output.(float64))
+	// 	w.WriteHeader(http.StatusOK)
+	// 	w.Header().Set("Content-Type", "text/plain")
+	// 	fmt.Fprintf(w, "progress:%f:%f", p.OutputProgress, progressChunks)
+	// 	break
+	// case string:
+	// 	w.WriteHeader(http.StatusCreated)
+	// 	fmt.Fprintf(w, "%s", output)
+	// 	break
+	// default:
+	// 	w.WriteHeader(http.StatusNoContent)
+	// 	p.OutputProgress = 0.0
+	// }
+	// return nil
+}
+
+func (p *packWorker) createImage(pInst packInstructions) error {
+	p.Output = make(chan interface{}, progressChunks+1)
+	resizeInputImages(&pInst, p.Output)
+	var img image.Image
+	var err error
+	switch *pInst.packType {
+	case maskPack:
+		img, err = createMaskPack(pInst)
+	case rgbPack:
+		img, err = createRGBPack(pInst)
+	case rgbaPack:
+		img, err = createRGBAPack(pInst)
+	case greyPack:
+		img, err = createGreyPack(pInst)
+	}
 	if err != nil {
 		return err
 	}
-	p.DownloadImage = newDownloadImage(buf.Bytes(), jpgContent)
+	p.Output <- 20.0
+	buf := new(bytes.Buffer)
+	switch pInst.outputType {
+	case jpgContent:
+		err = jpeg.Encode(buf, img, nil)
+	case pngContent:
+		err = png.Encode(buf, img)
+	case tiffContent:
+		err = tiff.Encode(buf, img, nil)
+	}
+	if err != nil {
+		return err
+	}
+	p.Output <- 30.0
+	p.DownloadImage = newDownloadImage(buf.Bytes(), pInst.outputType)
 	var href = "./download"
-	var filename = "test.jpg"
+	var filename = pInst.outputName
 	p.Output <- "download:" + href + ":" + filename
+	close(p.Output)
 	return nil
 }
 
-func resizeImage(i *image.Image) *image.Image {
-	return nil
+func createMaskPack(pInst packInstructions) (image.Image, error) {
+	width := pInst.width
+	height := pInst.height
+	upLeft := image.Point{0, 0}
+	lowRight := image.Point{width, height}
+	img := image.NewNRGBA(image.Rectangle{upLeft, lowRight})
+	for x := 0; x < width; x++ {
+		for y := 0; y < height; y++ {
+			r := getColorFromChannel(x, y, pInst.red)
+			g := getColorFromChannel(x, y, pInst.green)
+			b := getColorFromChannel(x, y, pInst.blue)
+			a := getColorFromChannel(x, y, pInst.alpha)
+			pixelCol := color.NRGBA{r, g, b, a}
+			img.Set(x, y, pixelCol)
+		}
+	}
+	return img, nil
+}
+
+func createRGBPack(pInst packInstructions) (image.Image, error) {
+	width := pInst.width
+	height := pInst.height
+	upLeft := image.Point{0, 0}
+	lowRight := image.Point{width, height}
+	img := image.NewRGBA(image.Rectangle{upLeft, lowRight})
+	for x := 0; x < width; x++ {
+		for y := 0; y < height; y++ {
+			r := getColorFromChannel(x, y, pInst.red)
+			g := getColorFromChannel(x, y, pInst.green)
+			b := getColorFromChannel(x, y, pInst.blue)
+			a := uint8(255)
+			pixelCol := color.RGBA{r, g, b, a}
+			img.Set(x, y, pixelCol)
+		}
+	}
+	return img, nil
+}
+func createRGBAPack(pInst packInstructions) (image.Image, error) {
+	width := pInst.width
+	height := pInst.height
+	upLeft := image.Point{0, 0}
+	lowRight := image.Point{width, height}
+	img := image.NewRGBA(image.Rectangle{upLeft, lowRight})
+	for x := 0; x < width; x++ {
+		for y := 0; y < height; y++ {
+			r := getColorFromChannel(x, y, pInst.red)
+			g := getColorFromChannel(x, y, pInst.green)
+			b := getColorFromChannel(x, y, pInst.blue)
+			a := getColorFromChannel(x, y, pInst.alpha)
+			pixelCol := color.RGBA{r, g, b, a}
+			img.Set(x, y, pixelCol)
+		}
+	}
+	return img, nil
+}
+func createGreyPack(pInst packInstructions) (image.Image, error) {
+	width := pInst.width
+	height := pInst.height
+	upLeft := image.Point{0, 0}
+	lowRight := image.Point{width, height}
+	img := image.NewGray(image.Rectangle{upLeft, lowRight})
+	for x := 0; x < width; x++ {
+		for y := 0; y < height; y++ {
+			grey := getColorFromChannel(x, y, pInst.grey)
+			pixelCol := color.Gray{grey}
+			img.Set(x, y, pixelCol)
+		}
+	}
+	return img, nil
+}
+
+func getColorFromChannel(x, y int, iChan *inputChannel) uint8 {
+	rgbaCol := iChan.image.At(x, y)
+	if iChan.channel == grey {
+		greyCol := color.GrayModel.Convert(rgbaCol)
+		grey, _ := greyCol.(color.Gray)
+		return grey.Y
+	}
+	nrgbaCol := color.NRGBAModel.Convert(rgbaCol)
+	nrgba, _ := nrgbaCol.(color.NRGBA)
+	switch iChan.channel {
+	case red:
+		return uint8(nrgba.R)
+	case green:
+		return uint8(nrgba.G)
+	case blue:
+		return uint8(nrgba.B)
+	case alpha:
+		return uint8(nrgba.A)
+	}
+	return 0
+}
+
+func resizeInputImages(pInst *packInstructions, progress chan<- interface{}) {
+	inputChannels := [5]*inputChannel{pInst.red, pInst.green, pInst.blue, pInst.alpha, pInst.grey}
+	for _, iC := range inputChannels {
+		func(pInst *packInstructions) {
+			defer func() {
+				progress <- 10.0
+			}()
+			if iC == nil {
+				return
+			}
+			if iC.image.Bounds().Dx() == pInst.width && iC.image.Bounds().Dy() == pInst.height {
+				return
+			}
+			resized := resize.Resize(uint(pInst.width), uint(pInst.height), iC.image, resize.Lanczos3)
+			*iC = inputChannel{resized, iC.channel}
+		}(pInst)
+	}
 }
 
 func (p *packWorker) serveDownload(w http.ResponseWriter) error {

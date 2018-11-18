@@ -152,6 +152,7 @@ func buildPackInstructions(f url.Values) (*packInstructions, error) {
 	return &packInstructions{
 		filename,
 		fileType,
+		packType,
 		width,
 		height,
 		redInputChannel,

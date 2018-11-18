@@ -88,7 +88,7 @@
                 alphaChannel.prop('required', false);
                 break;
             case "png":
-            case "tga":
+            case "tiff":
                 alphaSection.show();
                 alphaFile.prop('required', true);
                 alphaChannel.prop('required', true);
